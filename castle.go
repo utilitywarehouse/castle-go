@@ -171,27 +171,27 @@ type castleAPIResponse struct {
 
 // Filter sends a filter request to castle.io
 // see https://reference.castle.io/#operation/filter for details
-func (c *Castle) Filter(context *Context, event Event, user User, properties map[string]string) error {
+func (c *Castle) Filter(ctx context.Context, castleCtx *Context, event Event, user User, properties map[string]string) error {
 	e := &castleAPIRequest{
 		Type:         event.EventType,
 		Status:       event.EventStatus,
-		RequestToken: context.RequestToken,
+		RequestToken: castleCtx.RequestToken,
 		User:         user,
-		Context:      context,
+		Context:      castleCtx,
 		Properties:   properties,
 	}
-	return c.SendFilterCall(e)
+	return c.SendFilterCall(ctx, e)
 }
 
 // SendFilterCall is a plumbing method constructing the HTTP req/res and interpreting results
-func (c *Castle) SendFilterCall(e *castleAPIRequest) error {
+func (c *Castle) SendFilterCall(ctx context.Context, e *castleAPIRequest) error {
 	b := new(bytes.Buffer)
 	err := json.NewEncoder(b).Encode(e)
 	if err != nil {
 		return err
 	}
 
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, FilterEndpoint, b)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, FilterEndpoint, b)
 	if err != nil {
 		return err
 	}
@@ -246,7 +246,8 @@ func authenticationRecommendedActionFromString(action string) AuthenticationReco
 // Risk sends a risk request to castle.io
 // see https://reference.castle.io/#operation/risk for details
 func (c *Castle) Risk(
-	context *Context,
+	ctx context.Context,
+	castleCtx *Context,
 	event Event,
 	user User,
 	properties map[string]string,
@@ -254,23 +255,23 @@ func (c *Castle) Risk(
 	e := &castleAPIRequest{
 		Type:         event.EventType,
 		Status:       event.EventStatus,
-		RequestToken: context.RequestToken,
+		RequestToken: castleCtx.RequestToken,
 		User:         user,
-		Context:      context,
+		Context:      castleCtx,
 		Properties:   properties,
 	}
-	return c.SendRiskCall(e)
+	return c.SendRiskCall(ctx, e)
 }
 
 // SendRiskCall is a plumbing method constructing the HTTP req/res and interpreting results
-func (c *Castle) SendRiskCall(e *castleAPIRequest) (AuthenticationRecommendedAction, error) {
+func (c *Castle) SendRiskCall(ctx context.Context, e *castleAPIRequest) (AuthenticationRecommendedAction, error) {
 	b := new(bytes.Buffer)
 	err := json.NewEncoder(b).Encode(e)
 	if err != nil {
 		return RecommendedActionNone, err
 	}
 
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, RiskEndpoint, b)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, RiskEndpoint, b)
 	if err != nil {
 		return RecommendedActionNone, err
 	}

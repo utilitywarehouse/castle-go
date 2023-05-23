@@ -1,6 +1,7 @@
 package castle_test
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -23,6 +24,7 @@ func configureRequest() *http.Request {
 }
 
 func TestCastle_SendFilterCall(t *testing.T) {
+	ctx := context.Background()
 	req := configureRequest()
 
 	cstl, err := castle.New("secret-string")
@@ -42,6 +44,7 @@ func TestCastle_SendFilterCall(t *testing.T) {
 	}
 
 	err = cstl.Filter(
+		ctx,
 		castle.ContextFromRequest(req),
 		evt,
 		castle.User{
@@ -66,6 +69,7 @@ func TestCastle_SendFilterCall(t *testing.T) {
 	}
 
 	err = cstl.Filter(
+		ctx,
 		castle.ContextFromRequest(req),
 		evt,
 		castle.User{
@@ -92,6 +96,7 @@ func TestCastle_SendFilterCall(t *testing.T) {
 	}
 
 	err = cstl.Filter(
+		ctx,
 		castle.ContextFromRequest(req),
 		evt,
 		castle.User{
@@ -105,6 +110,7 @@ func TestCastle_SendFilterCall(t *testing.T) {
 }
 
 func TestCastle_Filter(t *testing.T) {
+	ctx := context.Background()
 	req := configureRequest()
 
 	cstl, err := castle.New("secret-string")
@@ -151,6 +157,7 @@ func TestCastle_Filter(t *testing.T) {
 	castle.FilterEndpoint = ts.URL
 
 	err = cstl.Filter(
+		ctx,
 		castle.ContextFromRequest(req),
 		castle.Event{
 			EventType:   castle.EventTypeLogin,
@@ -201,6 +208,7 @@ func TestContextFromRequest(t *testing.T) {
 }
 
 func TestCastle_Risk(t *testing.T) {
+	ctx := context.Background()
 	req := configureRequest()
 
 	cstl, err := castle.New("secret-string")
@@ -247,6 +255,7 @@ func TestCastle_Risk(t *testing.T) {
 	castle.RiskEndpoint = ts.URL
 
 	_, err = cstl.Risk(
+		ctx,
 		castle.ContextFromRequest(req),
 		castle.Event{
 			EventType:   castle.EventTypeLogin,
@@ -264,6 +273,7 @@ func TestCastle_Risk(t *testing.T) {
 }
 
 func TestCastle_SendRiskCall(t *testing.T) {
+	ctx := context.Background()
 	req := configureRequest()
 
 	cstl, err := castle.New("secret-string")
@@ -278,6 +288,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	castle.RiskEndpoint = ts.URL
 
 	res, err := cstl.Risk(
+		ctx,
 		castle.ContextFromRequest(req),
 		castle.Event{
 			EventType:   castle.EventTypeLogin,
@@ -301,6 +312,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	castle.RiskEndpoint = ts.URL
 
 	res, err = cstl.Risk(
+		ctx,
 		castle.ContextFromRequest(req),
 		castle.Event{
 			EventType:   castle.EventTypeLogin,
@@ -325,6 +337,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	castle.RiskEndpoint = ts.URL
 
 	res, err = cstl.Risk(
+		ctx,
 		castle.ContextFromRequest(req),
 		castle.Event{
 			EventType:   castle.EventTypeLogin,
@@ -350,6 +363,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	castle.RiskEndpoint = ts.URL
 
 	res, err = cstl.Risk(
+		ctx,
 		castle.ContextFromRequest(req),
 		castle.Event{
 			EventType:   castle.EventTypeLogin,
@@ -375,6 +389,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	castle.RiskEndpoint = ts.URL
 
 	res, err = cstl.Risk(
+		ctx,
 		castle.ContextFromRequest(req),
 		castle.Event{
 			EventType:   castle.EventTypeLogin,
@@ -400,6 +415,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	castle.RiskEndpoint = ts.URL
 
 	res, err = cstl.Risk(
+		ctx,
 		castle.ContextFromRequest(req),
 		castle.Event{
 			EventType:   castle.EventTypeLogin,
