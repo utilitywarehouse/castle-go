@@ -45,15 +45,15 @@ const (
 	EventStatusRequested EventStatus = "$requested"
 )
 
-// AuthenticationRecommendedAction encapsulates the 3 possible responses from auth call (allow, challenge, deny)
-type AuthenticationRecommendedAction string
+// RecommendedAction encapsulates the 3 possible responses from auth call (allow, challenge, deny)
+type RecommendedAction string
 
 // See https://castle.io/docs/authentication
 const (
-	RecommendedActionNone      AuthenticationRecommendedAction = ""
-	RecommendedActionAllow     AuthenticationRecommendedAction = "allow"
-	RecommendedActionChallenge AuthenticationRecommendedAction = "challenge"
-	RecommendedActionDeny      AuthenticationRecommendedAction = "deny"
+	RecommendedActionNone      RecommendedAction = ""
+	RecommendedActionAllow     RecommendedAction = "allow"
+	RecommendedActionChallenge RecommendedAction = "challenge"
+	RecommendedActionDeny      RecommendedAction = "deny"
 )
 
 // New creates a new castle client
@@ -230,7 +230,7 @@ func (c *Castle) SendFilterCall(ctx context.Context, e *castleAPIRequest) error 
 	return err
 }
 
-func authenticationRecommendedActionFromString(action string) AuthenticationRecommendedAction {
+func recommendedActionFromString(action string) RecommendedAction {
 	switch action {
 	case "allow":
 		return RecommendedActionAllow
@@ -251,7 +251,7 @@ func (c *Castle) Risk(
 	event Event,
 	user User,
 	properties map[string]string,
-) (AuthenticationRecommendedAction, error) {
+) (RecommendedAction, error) {
 	e := &castleAPIRequest{
 		Type:         event.EventType,
 		Status:       event.EventStatus,
@@ -264,7 +264,7 @@ func (c *Castle) Risk(
 }
 
 // SendRiskCall is a plumbing method constructing the HTTP req/res and interpreting results
-func (c *Castle) SendRiskCall(ctx context.Context, e *castleAPIRequest) (AuthenticationRecommendedAction, error) {
+func (c *Castle) SendRiskCall(ctx context.Context, e *castleAPIRequest) (RecommendedAction, error) {
 	b := new(bytes.Buffer)
 	err := json.NewEncoder(b).Encode(e)
 	if err != nil {
@@ -307,7 +307,7 @@ func (c *Castle) SendRiskCall(ctx context.Context, e *castleAPIRequest) (Authent
 		return RecommendedActionNone, errors.Errorf("%s: %s", resp.Type, resp.Message)
 	}
 
-	return authenticationRecommendedActionFromString(resp.Policy.Action), err
+	return recommendedActionFromString(resp.Policy.Action), err
 }
 
 // WebhookBody encapsulates body of webhook notificationc coming from castle.io
