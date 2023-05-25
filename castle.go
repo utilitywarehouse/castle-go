@@ -179,17 +179,16 @@ type castleAPIResponse struct {
 
 // Filter sends a filter request to castle.io
 // see https://reference.castle.io/#operation/filter for details
-func (c *Castle) Filter(
-	ctx context.Context,
-	req *Request,
-) (RecommendedAction, error) {
+func (c *Castle) Filter(ctx context.Context, req *Request) (RecommendedAction, error) {
 	if req == nil {
 		return RecommendedActionNone, errors.New("request cannot be nil")
 	}
 	if req.Context == nil {
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
 	}
-
+	if req.Properties == nil {
+		req.Properties = make(map[string]string)
+	}
 	e := &castleAPIRequest{
 		Type:         req.Event.EventType,
 		Status:       req.Event.EventStatus,
@@ -260,15 +259,15 @@ func recommendedActionFromString(action string) RecommendedAction {
 
 // Risk sends a risk request to castle.io
 // see https://reference.castle.io/#operation/risk for details
-func (c *Castle) Risk(
-	ctx context.Context,
-	req *Request,
-) (RecommendedAction, error) {
+func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, error) {
 	if req == nil {
 		return RecommendedActionNone, errors.New("request cannot be nil")
 	}
 	if req.Context == nil {
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
+	}
+	if req.Properties == nil {
+		req.Properties = make(map[string]string)
 	}
 	e := &castleAPIRequest{
 		Type:         req.Event.EventType,
