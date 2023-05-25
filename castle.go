@@ -159,7 +159,7 @@ type castleAPIRequest struct {
 	RequestToken string            `json:"request_token"`
 	User         User              `json:"user"`
 	Context      *Context          `json:"context"`
-	Properties   map[string]string `json:"properties"`
+	Properties   map[string]string `json:"properties,omitempty"`
 }
 
 type castleAPIResponse struct {
@@ -185,9 +185,6 @@ func (c *Castle) Filter(ctx context.Context, req *Request) (RecommendedAction, e
 	}
 	if req.Context == nil {
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
-	}
-	if req.Properties == nil {
-		req.Properties = make(map[string]string)
 	}
 	e := &castleAPIRequest{
 		Type:         req.Event.EventType,
@@ -265,9 +262,6 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 	}
 	if req.Context == nil {
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
-	}
-	if req.Properties == nil {
-		req.Properties = make(map[string]string)
 	}
 	e := &castleAPIRequest{
 		Type:         req.Event.EventType,
