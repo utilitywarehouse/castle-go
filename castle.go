@@ -183,6 +183,13 @@ func (c *Castle) Filter(
 	ctx context.Context,
 	req *Request,
 ) (RecommendedAction, error) {
+	if req == nil {
+		return RecommendedActionNone, errors.New("request cannot be nil")
+	}
+	if req.Context == nil {
+		return RecommendedActionNone, errors.New("request.Context cannot be nil")
+	}
+
 	e := &castleAPIRequest{
 		Type:         req.Event.EventType,
 		Status:       req.Event.EventStatus,
@@ -257,6 +264,12 @@ func (c *Castle) Risk(
 	ctx context.Context,
 	req *Request,
 ) (RecommendedAction, error) {
+	if req == nil {
+		return RecommendedActionNone, errors.New("request cannot be nil")
+	}
+	if req.Context == nil {
+		return RecommendedActionNone, errors.New("request.Context cannot be nil")
+	}
 	e := &castleAPIRequest{
 		Type:         req.Event.EventType,
 		Status:       req.Event.EventStatus,
