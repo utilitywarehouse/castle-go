@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/pkg/errors"
@@ -221,9 +222,9 @@ func (c *Castle) sendFilterCall(ctx context.Context, e *castleAPIRequest) (Recom
 		return RecommendedActionNone, err
 	}
 	defer res.Body.Close() // nolint: gosec
-
 	if expected, got := http.StatusCreated, res.StatusCode; expected != got {
-		return RecommendedActionNone, errors.Errorf("expected %d status but got %d", expected, got)
+		b, _ := io.ReadAll(res.Body) // nolint: errcheck
+		return RecommendedActionNone, errors.Errorf("expected %d status but got %d: %s", expected, got, string(b))
 	}
 
 	resp := &castleAPIResponse{}
@@ -301,14 +302,14 @@ func (c *Castle) sendRiskCall(ctx context.Context, e *castleAPIRequest) (Recomme
 		return RecommendedActionNone, err
 	}
 	defer res.Body.Close() // nolint: gosec
+	if res.StatusCode != http.StatusCreated {
+		b, _ := io.ReadAll(res.Body) // nolint: errcheck
+		return RecommendedActionNone, errors.Errorf("expected 201 status but got %d: %s", res.StatusCode, string(b))
+	}
 
 	resp := &castleAPIResponse{}
 	if err = json.NewDecoder(res.Body).Decode(resp); err != nil {
 		return RecommendedActionNone, errors.Errorf("unable to decode response body: %v", err)
-	}
-
-	if res.StatusCode != http.StatusCreated {
-		return RecommendedActionNone, errors.Errorf("expected 201 status but got %s", res.Status)
 	}
 
 	if resp.Type != "" {
