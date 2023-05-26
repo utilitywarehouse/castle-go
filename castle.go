@@ -179,14 +179,8 @@ type castleAPIResponse struct {
 // Filter sends a filter request to castle.io
 // see https://reference.castle.io/#operation/filter for details
 func (c *Castle) Filter(ctx context.Context, req *Request) (RecommendedAction, error) {
-	if req == nil {
-		return RecommendedActionNone, errors.New("request cannot be nil")
-	}
-	if req.Context == nil {
-		return RecommendedActionNone, errors.New("context cannot be nil")
-	}
-	if req.Context.RequestToken == "" {
-		return RecommendedActionNone, errors.New("request token cannot be empty")
+	if err := validate(req); err != nil {
+		return RecommendedActionNone, err
 	}
 	e := &castleAPIRequest{
 		Type:         req.Event.EventType,
@@ -259,14 +253,8 @@ func recommendedActionFromString(action string) RecommendedAction {
 // Risk sends a risk request to castle.io
 // see https://reference.castle.io/#operation/risk for details
 func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, error) {
-	if req == nil {
-		return RecommendedActionNone, errors.New("request cannot be nil")
-	}
-	if req.Context == nil {
-		return RecommendedActionNone, errors.New("context cannot be nil")
-	}
-	if req.Context.RequestToken == "" {
-		return RecommendedActionNone, errors.New("request token cannot be empty")
+	if err := validate(req); err != nil {
+		return RecommendedActionNone, err
 	}
 	e := &castleAPIRequest{
 		Type:         req.Event.EventType,
@@ -321,4 +309,17 @@ func (c *Castle) sendRiskCall(ctx context.Context, e *castleAPIRequest) (Recomme
 	}
 
 	return recommendedActionFromString(resp.Policy.Action), nil
+}
+
+func validate(req *Request) error {
+	if req == nil {
+		return errors.New("request cannot be nil")
+	}
+	if req.Context == nil {
+		return errors.New("context cannot be nil")
+	}
+	if req.Context.RequestToken == "" {
+		return errors.New("request token cannot be empty")
+	}
+	return nil
 }
