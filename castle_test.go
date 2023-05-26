@@ -99,11 +99,11 @@ func TestCastle_Filter(t *testing.T) {
 			input       *castle.Request
 			expectedErr string
 		}{
-			"missing castle.Request": {
+			"missing request": {
 				input:       nil,
 				expectedErr: "request cannot be nil",
 			},
-			"missing castle.Context": {
+			"missing context": {
 				input: &castle.Request{
 					Context: nil,
 					Event: castle.Event{
@@ -116,7 +116,24 @@ func TestCastle_Filter(t *testing.T) {
 					},
 					Properties: map[string]string{"prop1": "propValue1"},
 				},
-				expectedErr: "request.Context cannot be nil",
+				expectedErr: "context cannot be nil",
+			},
+			"empty request token": {
+				input: &castle.Request{
+					Context: &castle.Context{
+						RequestToken: "",
+					},
+					Event: castle.Event{
+						EventType:   castle.EventTypeLogin,
+						EventStatus: castle.EventStatusSucceeded,
+					},
+					User: castle.User{
+						ID:     "user-id",
+						Traits: map[string]string{"trait1": "traitValue1"},
+					},
+					Properties: map[string]string{"prop1": "propValue1"},
+				},
+				expectedErr: "request token cannot be empty",
 			},
 		}
 		for name, test := range tests {
@@ -187,7 +204,7 @@ func TestContextFromRequest(t *testing.T) {
 	// grabs ClientID form cookie
 	req := httptest.NewRequest("GET", "/", nil)
 
-	req.Header.Set("HTTP_X_CASTLE_REQUEST_TOKEN", "some-token")
+	req.Header.Set("X-CASTLE-REQUEST-TOKEN", "some-token")
 
 	ctx := castle.ContextFromRequest(req)
 	assert.Equal(t, "some-token", ctx.RequestToken)
@@ -227,11 +244,11 @@ func TestCastle_Risk(t *testing.T) {
 			input       *castle.Request
 			expectedErr string
 		}{
-			"missing castle.Request": {
+			"missing request": {
 				input:       nil,
 				expectedErr: "request cannot be nil",
 			},
-			"missing castle.Context": {
+			"missing context": {
 				input: &castle.Request{
 					Context: nil,
 					Event: castle.Event{
@@ -244,7 +261,24 @@ func TestCastle_Risk(t *testing.T) {
 					},
 					Properties: map[string]string{"prop1": "propValue1"},
 				},
-				expectedErr: "request.Context cannot be nil",
+				expectedErr: "context cannot be nil",
+			},
+			"empty request token": {
+				input: &castle.Request{
+					Context: &castle.Context{
+						RequestToken: "",
+					},
+					Event: castle.Event{
+						EventType:   castle.EventTypeLogin,
+						EventStatus: castle.EventStatusSucceeded,
+					},
+					User: castle.User{
+						ID:     "user-id",
+						Traits: map[string]string{"trait1": "traitValue1"},
+					},
+					Properties: map[string]string{"prop1": "propValue1"},
+				},
+				expectedErr: "request token cannot be empty",
 			},
 		}
 		for name, test := range tests {

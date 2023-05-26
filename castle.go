@@ -133,8 +133,7 @@ func ContextFromRequest(r *http.Request) *Context {
 }
 
 func getRequestToken(r *http.Request) string {
-	// RequestToken is X-Castle-Request-Token
-	return r.Header.Get("HTTP_X_CASTLE_REQUEST_TOKEN")
+	return r.Header.Get("X-CASTLE-REQUEST-TOKEN")
 }
 
 type Request struct {
@@ -184,7 +183,10 @@ func (c *Castle) Filter(ctx context.Context, req *Request) (RecommendedAction, e
 		return RecommendedActionNone, errors.New("request cannot be nil")
 	}
 	if req.Context == nil {
-		return RecommendedActionNone, errors.New("request.Context cannot be nil")
+		return RecommendedActionNone, errors.New("context cannot be nil")
+	}
+	if req.Context.RequestToken == "" {
+		return RecommendedActionNone, errors.New("request token cannot be empty")
 	}
 	e := &castleAPIRequest{
 		Type:         req.Event.EventType,
@@ -261,7 +263,10 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 		return RecommendedActionNone, errors.New("request cannot be nil")
 	}
 	if req.Context == nil {
-		return RecommendedActionNone, errors.New("request.Context cannot be nil")
+		return RecommendedActionNone, errors.New("context cannot be nil")
+	}
+	if req.Context.RequestToken == "" {
+		return RecommendedActionNone, errors.New("request token cannot be empty")
 	}
 	e := &castleAPIRequest{
 		Type:         req.Event.EventType,
