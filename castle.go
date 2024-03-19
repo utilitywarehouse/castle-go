@@ -138,6 +138,7 @@ func getRequestToken(r *http.Request) string {
 }
 
 type Request struct {
+	Name       string
 	Context    *Context
 	Event      Event
 	User       User
@@ -155,6 +156,7 @@ type User struct {
 
 type castleAPIRequest struct {
 	Type         EventType         `json:"type"`
+	Name         string            `json:"name,omitempty"`
 	Status       EventStatus       `json:"status"`
 	RequestToken string            `json:"request_token"`
 	User         User              `json:"user"`
@@ -264,6 +266,7 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
 	}
 	e := &castleAPIRequest{
+		Name:         req.Name,
 		Type:         req.Event.EventType,
 		Status:       req.Event.EventStatus,
 		RequestToken: req.Context.RequestToken,
