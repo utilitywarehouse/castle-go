@@ -267,7 +267,7 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
 	}
 	e := &castleAPIRequest{
-		Name:         req.Name,
+		Name:         req.Event.Name,
 		Type:         req.Event.EventType,
 		Status:       req.Event.EventStatus,
 		RequestToken: req.Context.RequestToken,
