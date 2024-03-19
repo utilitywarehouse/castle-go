@@ -20,6 +20,7 @@ var RiskEndpoint = "https://api.castle.io/v1/risk"
 type Event struct {
 	EventType   EventType
 	EventStatus EventStatus
+	Name        string
 }
 
 // EventType is an enum defining types of event castle tracks
@@ -33,6 +34,7 @@ const (
 	EventTypeProfileReset         EventType = "$profile_reset"
 	EventTypePasswordResetRequest EventType = "$password_reset_request"
 	EventTypeChallenge            EventType = "$challenge"
+	EventTypeCustom               EventType = "$custom"
 )
 
 // EventStatus is an enum defining the statuses for a given event.
@@ -138,7 +140,6 @@ func getRequestToken(r *http.Request) string {
 }
 
 type Request struct {
-	Name       string
 	Context    *Context
 	Event      Event
 	User       User
