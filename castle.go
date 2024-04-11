@@ -33,6 +33,7 @@ const (
 	EventTypeProfileReset         EventType = "$profile_reset"
 	EventTypePasswordResetRequest EventType = "$password_reset_request"
 	EventTypeChallenge            EventType = "$challenge"
+	EventTypeLogout               EventType = "&logout"
 )
 
 // EventStatus is an enum defining the statuses for a given event.
