@@ -27,12 +27,13 @@ type EventType string
 
 // See https://docs.castle.io/docs/events
 const (
-	EventTypeLogin                EventType = "$login"
-	EventTypeRegistration         EventType = "$registration"
-	EventTypeProfileUpdate        EventType = "$profile_update"
-	EventTypeProfileReset         EventType = "$profile_reset"
-	EventTypePasswordResetRequest EventType = "$password_reset_request"
-	EventTypeChallenge            EventType = "$challenge"
+	EventTypeLogin                 EventType = "$login"
+	EventTypeRegistration          EventType = "$registration"
+	EventTypeProfileUpdate         EventType = "$profile_update"
+	EventTypeProfileReset          EventType = "$profile_reset"
+	EventTypePasswordResetRequest  EventType = "$password_reset_request"
+	EventTypeChallenge             EventType = "$challenge"
+	EventTypeLogout                EventType = "&logout"
 )
 
 // EventStatus is an enum defining the statuses for a given event.
