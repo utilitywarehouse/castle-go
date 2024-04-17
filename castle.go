@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
-	"github.com/tomasen/realip"
 )
 
 // FilterEndpoint defines the filter URL castle.io side
@@ -65,32 +64,6 @@ func New(secret string) (*Castle, error) {
 	return NewWithHTTPClient(secret, client)
 }
 
-// HeaderAllowList keeps a list of headers that will be forwarded to castle
-var HeaderAllowList = []string{
-	"Accept",
-	"Accept-Charset",
-	"Accept-Datetime",
-	"Accept-Encoding",
-	"Accept-Language",
-	"Cache-Control",
-	"Connection",
-	"Content-Length",
-	"Content-Type",
-	"Dnt",
-	"Host",
-	"Origin",
-	"Pragma",
-	"Referer",
-	"Sec-Fetch-Dest",
-	"Sec-Fetch-Mode",
-	"Sec-Fetch-Site",
-	"Sec-Fetch-User",
-	"Te",
-	"Upgrade-Insecure-Requests",
-	"User-Agent",
-	"X-Castle-Request-Token",
-}
-
 // NewWithHTTPClient same as New but allows passing of http.Client with custom config
 func NewWithHTTPClient(secret string, client *http.Client) (*Castle, error) {
 	return &Castle{client: client, apiSecret: secret}, nil
@@ -107,35 +80,6 @@ type Context struct {
 	IP           string            `json:"ip"`
 	Headers      map[string]string `json:"headers"`
 	RequestToken string            `json:"request_token"`
-}
-
-func isHeaderAllowed(header string) bool {
-	for _, allowedHeader := range HeaderAllowList {
-		if header == http.CanonicalHeaderKey(allowedHeader) {
-			return true
-		}
-	}
-	return false
-}
-
-// ContextFromRequest builds castle context from current http.Request
-func ContextFromRequest(r *http.Request) *Context {
-	headers := make(map[string]string)
-
-	for requestHeader := range r.Header {
-		if isHeaderAllowed(requestHeader) {
-			headers[requestHeader] = r.Header.Get(requestHeader)
-		}
-	}
-
-	requestToken := getRequestToken(r)
-
-	return &Context{IP: realip.FromRequest(r), Headers: headers, RequestToken: requestToken}
-}
-
-func getRequestToken(r *http.Request) string {
-	// RequestToken is X-Castle-Request-Token
-	return r.Header.Get("HTTP_X_CASTLE_REQUEST_TOKEN")
 }
 
 type Request struct {
