@@ -25,7 +25,7 @@ func configureHTTPRequest() *http.Request {
 
 func configureRequest(httpReq *http.Request) *castle.Request {
 	return &castle.Request{
-		Context: castle.ContextFromRequest(httpReq),
+		Context: castle.FromHTTPRequest(httpReq),
 		Event: castle.Event{
 			EventType:   castle.EventTypeLogin,
 			EventStatus: castle.EventStatusSucceeded,
@@ -168,7 +168,7 @@ func TestCastle_Filter(t *testing.T) {
 			assert.Equal(t, "user-id", reqData.User.ID)
 			assert.Equal(t, map[string]string{"prop1": "propValue1"}, reqData.Properties)
 			assert.Equal(t, map[string]string{"trait1": "traitValue1"}, reqData.User.Traits)
-			assert.Equal(t, castle.ContextFromRequest(httpReq), reqData.Context)
+			assert.Equal(t, castle.FromHTTPRequest(httpReq), reqData.Context)
 
 			executed = true
 		}))
@@ -181,39 +181,6 @@ func TestCastle_Filter(t *testing.T) {
 
 		assert.True(t, executed)
 	})
-}
-
-func TestContextFromRequest(t *testing.T) {
-	// grabs ClientID form cookie
-	req := httptest.NewRequest("GET", "/", nil)
-
-	req.Header.Set("HTTP_X_CASTLE_REQUEST_TOKEN", "some-token")
-
-	ctx := castle.ContextFromRequest(req)
-	assert.Equal(t, "some-token", ctx.RequestToken)
-
-	// grabs IP from request
-	req.Header.Set("X-REAL-IP", "9.9.9.9")
-	ctx = castle.ContextFromRequest(req)
-	assert.Equal(t, "9.9.9.9", ctx.IP)
-
-	// but prefers X-FORWARDED-FOR
-	req.Header.Set("X-FORWARDED-FOR", "6.6.6.6, 3.3.3.3, 8.8.8.8")
-	ctx = castle.ContextFromRequest(req)
-	assert.Equal(t, "6.6.6.6", ctx.IP)
-
-	// grabs whitelisted headers only
-
-	for _, whitelistedHeader := range castle.HeaderAllowList {
-		req.Header.Set(whitelistedHeader, whitelistedHeader)
-	}
-
-	ctx = castle.ContextFromRequest(req)
-	for _, whitelistedHeader := range castle.HeaderAllowList {
-		assert.Contains(t, ctx.Headers, http.CanonicalHeaderKey(whitelistedHeader))
-	}
-
-	assert.NotContains(t, ctx.Headers, "Cookie")
 }
 
 func TestCastle_Risk(t *testing.T) {
@@ -296,7 +263,7 @@ func TestCastle_Risk(t *testing.T) {
 			assert.Equal(t, "user-id", reqData.User.ID)
 			assert.Equal(t, map[string]string{"prop1": "propValue1"}, reqData.Properties)
 			assert.Equal(t, map[string]string{"trait1": "traitValue1"}, reqData.User.Traits)
-			assert.Equal(t, castle.ContextFromRequest(httpReq), reqData.Context)
+			assert.Equal(t, castle.FromHTTPRequest(httpReq), reqData.Context)
 
 			executed = true
 		}))

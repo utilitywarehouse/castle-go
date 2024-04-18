@@ -1,4 +1,4 @@
-package context
+package castle_test
 
 import (
 	"context"
@@ -61,8 +61,8 @@ func TestToCtxFromRequest(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			ctx := context.Background()
 
-			gotCtx := ToCtxFromRequest(ctx, &test.input)
-			got := FromCtx(gotCtx)
+			gotCtx := castle.ToCtxFromHTTPRequest(ctx, &test.input)
+			got := castle.FromCtx(gotCtx)
 			assert.Equal(t, test.expected, *got)
 		})
 	}

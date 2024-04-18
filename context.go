@@ -1,11 +1,10 @@
-package context
+package castle
 
 import (
 	"context"
 	"net/http"
 	"strings"
 
-	"github.com/utilitywarehouse/castle-go"
 	http_internal "github.com/utilitywarehouse/castle-go/http"
 )
 
@@ -17,9 +16,27 @@ func (c contextKey) String() string {
 
 var castleCtxKey = contextKey("castle_context")
 
-// ToCtxFromRequest adds the token and other request information (i.e. castle context) to the context.
-func ToCtxFromRequest(ctx context.Context, r *http.Request) context.Context {
-	castleCtx := castle.Context{
+// ToCtx adds the Castle context to the context.Context.
+func ToCtx(ctx context.Context, castleCtx *Context) context.Context {
+	return context.WithValue(ctx, castleCtxKey, castleCtx)
+}
+
+// FromCtx returns the Castle context from the context.Context.
+func FromCtx(ctx context.Context) *Context {
+	castleCtx, ok := ctx.Value(castleCtxKey).(*Context)
+	if ok {
+		return castleCtx
+	}
+	return nil
+}
+
+// ToCtxFromHTTPRequest adds the token and other request information (i.e. castle context) to the context.
+func ToCtxFromHTTPRequest(ctx context.Context, r *http.Request) context.Context {
+	return context.WithValue(ctx, castleCtxKey, FromHTTPRequest(r))
+}
+
+func FromHTTPRequest(r *http.Request) *Context {
+	return &Context{
 		RequestToken: func() string {
 			// grab the token from header if it exists
 			if tkn := tokenFromHTTPHeader(r.Header); tkn != "" {
@@ -32,15 +49,6 @@ func ToCtxFromRequest(ctx context.Context, r *http.Request) context.Context {
 		IP:      http_internal.IPFromRequest(r),
 		Headers: FilterHeaders(r.Header), // pass in as much context as possible
 	}
-	return context.WithValue(ctx, castleCtxKey, castleCtx)
-}
-
-func FromCtx(ctx context.Context) *castle.Context {
-	castleCtx, ok := ctx.Value(castleCtxKey).(castle.Context)
-	if ok {
-		return &castleCtx
-	}
-	return nil
 }
 
 func tokenFromHTTPHeader(header http.Header) string {
