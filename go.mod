@@ -6,7 +6,6 @@ require (
 	github.com/daixiang0/gci v0.10.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.3
-	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce
 	gotest.tools/gotestsum v1.10.0
 	mvdan.cc/gofumpt v0.5.0
 )

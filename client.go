@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
-	"github.com/tomasen/realip"
 )
 
 // FilterEndpoint defines the filter URL castle.io side
@@ -17,78 +16,11 @@ var FilterEndpoint = "https://api.castle.io/v1/filter"
 // RiskEndpoint defines the risk URL castle.io side
 var RiskEndpoint = "https://api.castle.io/v1/risk"
 
-type Event struct {
-	EventType   EventType
-	EventStatus EventStatus
-}
-
-// EventType is an enum defining types of event castle tracks
-type EventType string
-
-// See https://docs.castle.io/docs/events
-const (
-	EventTypeLogin                EventType = "$login"
-	EventTypeRegistration         EventType = "$registration"
-	EventTypeProfileUpdate        EventType = "$profile_update"
-	EventTypeProfileReset         EventType = "$profile_reset"
-	EventTypePasswordResetRequest EventType = "$password_reset_request"
-	EventTypeChallenge            EventType = "$challenge"
-	EventTypeLogout               EventType = "&logout"
-)
-
-// EventStatus is an enum defining the statuses for a given event.
-type EventStatus string
-
-// See https://docs.castle.io/docs/events
-const (
-	EventStatusAttempted EventStatus = "$attempted"
-	EventStatusSucceeded EventStatus = "$succeeded"
-	EventStatusFailed    EventStatus = "$failed"
-	EventStatusRequested EventStatus = "$requested"
-)
-
-// RecommendedAction encapsulates the 3 possible responses from auth call (allow, challenge, deny)
-type RecommendedAction string
-
-// See https://castle.io/docs/authentication
-const (
-	RecommendedActionNone      RecommendedAction = ""
-	RecommendedActionAllow     RecommendedAction = "allow"
-	RecommendedActionChallenge RecommendedAction = "challenge"
-	RecommendedActionDeny      RecommendedAction = "deny"
-)
-
 // New creates a new castle client
 func New(secret string) (*Castle, error) {
 	client := &http.Client{}
 
 	return NewWithHTTPClient(secret, client)
-}
-
-// HeaderAllowList keeps a list of headers that will be forwarded to castle
-var HeaderAllowList = []string{
-	"Accept",
-	"Accept-Charset",
-	"Accept-Datetime",
-	"Accept-Encoding",
-	"Accept-Language",
-	"Cache-Control",
-	"Connection",
-	"Content-Length",
-	"Content-Type",
-	"Dnt",
-	"Host",
-	"Origin",
-	"Pragma",
-	"Referer",
-	"Sec-Fetch-Dest",
-	"Sec-Fetch-Mode",
-	"Sec-Fetch-Site",
-	"Sec-Fetch-User",
-	"Te",
-	"Upgrade-Insecure-Requests",
-	"User-Agent",
-	"X-Castle-Request-Token",
 }
 
 // NewWithHTTPClient same as New but allows passing of http.Client with custom config
@@ -100,82 +32,6 @@ func NewWithHTTPClient(secret string, client *http.Client) (*Castle, error) {
 type Castle struct {
 	client    *http.Client
 	apiSecret string
-}
-
-// Context captures data from HTTP request
-type Context struct {
-	IP           string            `json:"ip"`
-	Headers      map[string]string `json:"headers"`
-	RequestToken string            `json:"request_token"`
-}
-
-func isHeaderAllowed(header string) bool {
-	for _, allowedHeader := range HeaderAllowList {
-		if header == http.CanonicalHeaderKey(allowedHeader) {
-			return true
-		}
-	}
-	return false
-}
-
-// ContextFromRequest builds castle context from current http.Request
-func ContextFromRequest(r *http.Request) *Context {
-	headers := make(map[string]string)
-
-	for requestHeader := range r.Header {
-		if isHeaderAllowed(requestHeader) {
-			headers[requestHeader] = r.Header.Get(requestHeader)
-		}
-	}
-
-	requestToken := getRequestToken(r)
-
-	return &Context{IP: realip.FromRequest(r), Headers: headers, RequestToken: requestToken}
-}
-
-func getRequestToken(r *http.Request) string {
-	// RequestToken is X-Castle-Request-Token
-	return r.Header.Get("HTTP_X_CASTLE_REQUEST_TOKEN")
-}
-
-type Request struct {
-	Context    *Context
-	Event      Event
-	User       User
-	Properties map[string]string
-}
-
-type User struct {
-	ID           string            `json:"id"`
-	Email        string            `json:"email,omitempty"`
-	Phone        string            `json:"phone,omitempty"`
-	Name         string            `json:"name,omitempty"`
-	RegisteredAt string            `json:"registered_at,omitempty"`
-	Traits       map[string]string `json:"traits,omitempty"`
-}
-
-type castleAPIRequest struct {
-	Type         EventType         `json:"type"`
-	Status       EventStatus       `json:"status"`
-	RequestToken string            `json:"request_token"`
-	User         User              `json:"user"`
-	Context      *Context          `json:"context"`
-	Properties   map[string]string `json:"properties,omitempty"`
-}
-
-type castleAPIResponse struct {
-	Type    string  `json:"type"`
-	Message string  `json:"message"`
-	Risk    float32 `json:"risk"`
-	Policy  struct {
-		Name       string `json:"name"`
-		ID         string `json:"id"`
-		RevisionID string `json:"revision_id"`
-		Action     string `json:"action"`
-	} `json:"policy"`
-	Device struct {
-		Token string `json:"token"`
-	} `json:"device"`
 }
 
 // Filter sends a filter request to castle.io
