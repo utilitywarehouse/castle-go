@@ -73,8 +73,8 @@ func tokenFromHTTPForm(r *http.Request) string {
 	}
 
 	for _, name := range validTokenFormNames {
-		if tkn := r.Form.Get(name); tkn != "" {
-			return tkn
+		if t := r.Form.Get(name); t != "" {
+			return t
 		}
 	}
 	return ""
