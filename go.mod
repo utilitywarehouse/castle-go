@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/daixiang0/gci v0.10.1
-	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.3
 	gotest.tools/gotestsum v1.10.0
 	mvdan.cc/gofumpt v0.5.0
@@ -21,6 +20,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/cobra v1.6.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect

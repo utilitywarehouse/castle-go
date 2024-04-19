@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
-
-	"github.com/pkg/errors"
 )
 
 var (
@@ -93,22 +93,12 @@ func (c *Castle) sendCall(ctx context.Context, r *castleAPIRequest, url string) 
 	defer res.Body.Close() // nolint: gosec
 	if res.StatusCode != http.StatusCreated {
 		b, _ := io.ReadAll(res.Body) // nolint: errcheck
-		return RecommendedActionNone, errors.Errorf("expected 201 status but got %d: %s", res.StatusCode, string(b))
+		return RecommendedActionNone, fmt.Errorf("expected 201 status but got %d: %s", res.StatusCode, string(b))
 	}
 
 	resp := &castleAPIResponse{}
 	if err = json.NewDecoder(res.Body).Decode(resp); err != nil {
-		return RecommendedActionNone, errors.Errorf("unable to decode response body: %v", err)
-	}
-
-	if resp.Type != "" {
-		// we have an api error
-		return RecommendedActionNone, errors.New(resp.Type)
-	}
-
-	if resp.Message != "" {
-		// we have an api error
-		return RecommendedActionNone, errors.Errorf("%s: %s", resp.Type, resp.Message)
+		return RecommendedActionNone, fmt.Errorf("unable to decode response body: %w", err)
 	}
 
 	return recommendedActionFromString(resp.Policy.Action), nil
