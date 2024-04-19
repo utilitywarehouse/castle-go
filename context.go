@@ -30,11 +30,6 @@ func FromCtx(ctx context.Context) *Context {
 	return nil
 }
 
-// ToCtxFromHTTPRequest adds the token and other request information (i.e. castle context) to the context.
-func ToCtxFromHTTPRequest(ctx context.Context, r *http.Request) context.Context {
-	return context.WithValue(ctx, castleCtxKey, FromHTTPRequest(r))
-}
-
 func FromHTTPRequest(r *http.Request) *Context {
 	return &Context{
 		RequestToken: func() string {
@@ -47,8 +42,13 @@ func FromHTTPRequest(r *http.Request) *Context {
 			return tokenFromHTTPForm(r)
 		}(),
 		IP:      http_internal.IPFromRequest(r),
-		Headers: FilterHeaders(r.Header), // pass in as much context as possible
+		Headers: filterHeader(r.Header), // pass in as much context as possible
 	}
+}
+
+// ToCtxFromHTTPRequest adds the token and other request information (i.e. castle context) to the context.
+func ToCtxFromHTTPRequest(ctx context.Context, r *http.Request) context.Context {
+	return ToCtx(ctx, FromHTTPRequest(r))
 }
 
 func tokenFromHTTPHeader(header http.Header) string {
@@ -69,10 +69,14 @@ func tokenFromHTTPForm(r *http.Request) string {
 		return ""
 	}
 
-	return r.Form.Get("castle_request_token")
+	if tkn := r.Form.Get("castle_request_token"); tkn != "" {
+		return tkn
+	}
+
+	return r.Form.Get("castle-request-token")
 }
 
-func FilterHeaders(hs http.Header) map[string]string {
+func filterHeader(hs http.Header) map[string]string {
 	castleHeaders := make(map[string]string)
 	for key, value := range hs {
 		// Ensure cookies or authorization are never sent along.
