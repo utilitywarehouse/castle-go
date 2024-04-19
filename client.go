@@ -42,6 +42,7 @@ func (c *Castle) Filter(ctx context.Context, req *Request) (RecommendedAction, e
 	}
 	r := &castleAPIRequest{
 		Type:         req.Event.EventType,
+		Name:         req.Event.Name,
 		Status:       req.Event.EventStatus,
 		RequestToken: req.Context.RequestToken,
 		User:         req.User,
@@ -62,6 +63,7 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 	}
 	r := &castleAPIRequest{
 		Type:         req.Event.EventType,
+		Name:         req.Event.Name,
 		Status:       req.Event.EventStatus,
 		RequestToken: req.Context.RequestToken,
 		User:         req.User,
