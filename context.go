@@ -8,6 +8,12 @@ import (
 	http_internal "github.com/utilitywarehouse/castle-go/http"
 )
 
+var (
+	// X-Castle-Request-Token is the recommended header name, while Castle-Token is the header name used in the UW frontends.
+	validTokenHeaderNames = []string{"X-Castle-Request-Token", "Castle-Token"}
+	validTokenFormNames   = []string{"castle_request_token", "castle-request-token"}
+)
+
 type contextKey string
 
 func (c contextKey) String() string {
@@ -30,11 +36,6 @@ func FromCtx(ctx context.Context) *Context {
 	return nil
 }
 
-// ToCtxFromHTTPRequest adds the token and other request information (i.e. castle context) to the context.
-func ToCtxFromHTTPRequest(ctx context.Context, r *http.Request) context.Context {
-	return context.WithValue(ctx, castleCtxKey, FromHTTPRequest(r))
-}
-
 func FromHTTPRequest(r *http.Request) *Context {
 	return &Context{
 		RequestToken: func() string {
@@ -47,18 +48,20 @@ func FromHTTPRequest(r *http.Request) *Context {
 			return tokenFromHTTPForm(r)
 		}(),
 		IP:      http_internal.IPFromRequest(r),
-		Headers: FilterHeaders(r.Header), // pass in as much context as possible
+		Headers: filterHeader(r.Header), // pass in as much context as possible
 	}
 }
 
+// ToCtxFromHTTPRequest adds the token and other request information (i.e. castle context) to the context.
+func ToCtxFromHTTPRequest(ctx context.Context, r *http.Request) context.Context {
+	return ToCtx(ctx, FromHTTPRequest(r))
+}
+
 func tokenFromHTTPHeader(header http.Header) string {
-	// recommended header name
-	if t := header.Get("X-Castle-Request-Token"); t != "" {
-		return t
-	}
-	// header name used in the frontends
-	if t := header.Get("Castle-Token"); t != "" {
-		return t
+	for _, name := range validTokenHeaderNames {
+		if t := header.Get(name); t != "" {
+			return t
+		}
 	}
 	return ""
 }
@@ -69,10 +72,15 @@ func tokenFromHTTPForm(r *http.Request) string {
 		return ""
 	}
 
-	return r.Form.Get("castle_request_token")
+	for _, name := range validTokenFormNames {
+		if t := r.Form.Get(name); t != "" {
+			return t
+		}
+	}
+	return ""
 }
 
-func FilterHeaders(hs http.Header) map[string]string {
+func filterHeader(hs http.Header) map[string]string {
 	castleHeaders := make(map[string]string)
 	for key, value := range hs {
 		// Ensure cookies or authorization are never sent along.

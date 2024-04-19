@@ -3,6 +3,8 @@ package castle
 type Event struct {
 	EventType   EventType
 	EventStatus EventStatus
+	// EventName is a $custom event name that can be used to send custom events.
+	Name string
 }
 
 // EventType is an enum defining types of event castle tracks.
@@ -17,6 +19,7 @@ const (
 	EventTypePasswordResetRequest EventType = "$password_reset_request"
 	EventTypeChallenge            EventType = "$challenge"
 	EventTypeLogout               EventType = "$logout"
+	EventTypeCustom               EventType = "$custom"
 )
 
 // EventStatus is an enum defining the statuses for a given event.
@@ -67,6 +70,7 @@ type User struct {
 
 type castleAPIRequest struct {
 	Type         EventType         `json:"type"`
+	Name         string            `json:"name,omitempty"`
 	Status       EventStatus       `json:"status"`
 	RequestToken string            `json:"request_token"`
 	User         User              `json:"user"`
