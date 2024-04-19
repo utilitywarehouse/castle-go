@@ -16,7 +16,7 @@ go get github.com/utilitywarehouse/castle-go
 castle.NewWithHTTPClient("secret-api-key", &http.Client{Timeout: time.Second * 2})
 ```
 
-## API notes
+## API
 
 The pkg wraps the two [Risk Assessment endpoints](https://reference.castle.io/#tag/risk_assessment) of the Castle API: Risk and Filter.
 
@@ -29,7 +29,7 @@ The right usage of the Filter API and rest of the technical differences are laid
 All in all, use Filter API for anonymous user events, and Risk API for logged in users.
 The model of the endpoints is almost the same, the request is almost identical while the response is 100% is. Both return risk assessment scores, which depending on the flow (event and status) might be ignored.
 
-#### NOTE 
+#### Notes
 
 The [Log API](https://reference.castle.io/#tag/logging) is currently not exposed in this pkg, as it is not a risk assessment endpoint, therefore the general risk scoring is not affected by it:
 
@@ -38,3 +38,7 @@ The [Log API](https://reference.castle.io/#tag/logging) is currently not exposed
 
 > Note that these can also be sent to the Log API, but that would degrade risk scoring performance since the risk score isn't evaluated for Log events
 [2](https://docs.castle.io/docs/anonymous-activity)
+
+## Repo
+
+Originally forked from [castle/castle-go](https://github.com/castle/castle-go) now it lives on its own. The original repo has not been maintained, and as of today only supports long deprecated Castle APIs.
