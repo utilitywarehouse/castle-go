@@ -8,6 +8,12 @@ import (
 	http_internal "github.com/utilitywarehouse/castle-go/http"
 )
 
+var (
+	// X-Castle-Request-Token is the recommended header name, while Castle-Token is the header name used in the UW frontends.
+	validTokenHeaderNames = []string{"X-Castle-Request-Token", "Castle-Token"}
+	validTokenFormNames   = []string{"castle_request_token", "castle-request-token"}
+)
+
 type contextKey string
 
 func (c contextKey) String() string {
@@ -52,13 +58,10 @@ func ToCtxFromHTTPRequest(ctx context.Context, r *http.Request) context.Context 
 }
 
 func tokenFromHTTPHeader(header http.Header) string {
-	// recommended header name
-	if t := header.Get("X-Castle-Request-Token"); t != "" {
-		return t
-	}
-	// header name used in the frontends
-	if t := header.Get("Castle-Token"); t != "" {
-		return t
+	for _, name := range validTokenHeaderNames {
+		if t := header.Get(name); t != "" {
+			return t
+		}
 	}
 	return ""
 }
@@ -69,11 +72,12 @@ func tokenFromHTTPForm(r *http.Request) string {
 		return ""
 	}
 
-	if tkn := r.Form.Get("castle_request_token"); tkn != "" {
-		return tkn
+	for _, name := range validTokenFormNames {
+		if tkn := r.Form.Get(name); tkn != "" {
+			return tkn
+		}
 	}
-
-	return r.Form.Get("castle-request-token")
+	return ""
 }
 
 func filterHeader(hs http.Header) map[string]string {
