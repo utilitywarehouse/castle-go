@@ -27,7 +27,7 @@ The difference between the two are better explained in the [docs](https://docs.c
 The right usage of the Filter API and rest of the technical differences are laid out [here](https://docs.castle.io/docs/anonymous-activity).
 
 All in all, use Filter API for anonymous user events, and Risk API for logged in users.
-The model of the endpoints is almost the same, the request is almost identical while the response is 100% is. Both return risk assessment scores, which depending on the flow (event and status) might be ignored.
+The model of the endpoints is almost the same, the request is almost identical while the response is 100%. Both return risk assessment scores, which depending on the flow (event and status) might be ignored.
 
 #### Notes
 
