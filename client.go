@@ -21,6 +21,15 @@ type Castle struct {
 	apiSecret string
 }
 
+type APIError struct {
+	StatusCode int    `json:"status_code"`
+	Message    string `json:"message"`
+}
+
+func (e *APIError) Error() string {
+	return fmt.Sprintf("status code: %d, message: %s", e.StatusCode, e.Message)
+}
+
 // New creates a new castle client with default http client
 func New(secret string) (*Castle, error) {
 	return NewWithHTTPClient(secret, http.DefaultClient)
@@ -95,7 +104,11 @@ func (c *Castle) sendCall(ctx context.Context, r *castleAPIRequest, url string) 
 	defer res.Body.Close() // nolint: gosec
 	if res.StatusCode != http.StatusCreated {
 		b, _ := io.ReadAll(res.Body) // nolint: errcheck
-		return RecommendedActionNone, fmt.Errorf("expected 201 status but got %d: %s", res.StatusCode, string(b))
+
+		return RecommendedActionNone, &APIError{
+			StatusCode: res.StatusCode,
+			Message:    string(b),
+		}
 	}
 
 	resp := &castleAPIResponse{}
