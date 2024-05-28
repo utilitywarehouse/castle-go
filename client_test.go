@@ -63,7 +63,7 @@ func TestCastle_SendFilterCall(t *testing.T) {
 		fs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(400)
-			w.Write([]byte(`foo`))
+			w.Write([]byte(`foo`)) // nolint: errcheck
 		}))
 
 		castle.FilterEndpoint = fs.URL
@@ -306,7 +306,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(400)
-			w.Write([]byte(`foo`))
+			w.Write([]byte(`foo`)) // nolint: errcheck
 		}))
 		t.Cleanup(ts.Close)
 
