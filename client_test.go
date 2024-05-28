@@ -63,12 +63,15 @@ func TestCastle_SendFilterCall(t *testing.T) {
 		fs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(400)
+			w.Write([]byte(`foo`)) // nolint: errcheck
 		}))
 
 		castle.FilterEndpoint = fs.URL
 
 		res, err := cstl.Filter(ctx, req)
 		assert.Error(t, err)
+		assert.IsType(t, &castle.APIError{}, err)
+		assert.Equal(t, &castle.APIError{StatusCode: 400, Message: "foo"}, err)
 		assert.Equal(t, castle.RecommendedActionNone, res)
 	})
 
@@ -303,6 +306,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(400)
+			w.Write([]byte(`foo`)) // nolint: errcheck
 		}))
 		t.Cleanup(ts.Close)
 
@@ -310,6 +314,8 @@ func TestCastle_SendRiskCall(t *testing.T) {
 
 		res, err := cstl.Risk(ctx, req)
 		assert.Error(t, err)
+		assert.IsType(t, &castle.APIError{}, err)
+		assert.Equal(t, &castle.APIError{StatusCode: 400, Message: "foo"}, err)
 		assert.Equal(t, castle.RecommendedActionNone, res)
 	})
 
