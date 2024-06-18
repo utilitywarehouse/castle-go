@@ -29,6 +29,15 @@ The right usage of the Filter API and rest of the technical differences are laid
 All in all, use Filter API for anonymous user events, and Risk API for logged in users.
 The model of the endpoints is almost the same, the request is almost identical while the response is 100%. Both return risk assessment scores, which depending on the flow (event and status) might be ignored.
 
+
+### API Errors
+
+Package returns `castle.APIError` type for all Castle API errors, which are responses with any non 2** status codes. The error type contains both the status code and the response body.
+
+### Metrics
+
+Metrics are enabled by default. Pass `castle.WithMetrics(false)` to the constructor to disable them.
+
 #### Notes
 
 The [Log API](https://reference.castle.io/#tag/logging) is currently not exposed in this pkg, as it is not a risk assessment endpoint, therefore the general risk scoring is not affected by it:

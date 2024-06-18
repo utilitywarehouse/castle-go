@@ -8,18 +8,22 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
+
+var castleReqsCounter = promauto.NewCounterVec(prometheus.CounterOpts{
+	Namespace: "iam",
+	Subsystem: "castle",
+	Name:      "requests_total",
+	Help:      "Number of requests made to castle",
+}, []string{"endpoint", "status"})
 
 var (
 	FilterEndpoint = "https://api.castle.io/v1/filter"
 	RiskEndpoint   = "https://api.castle.io/v1/risk"
 )
-
-// Castle encapsulates http client
-type Castle struct {
-	client    *http.Client
-	apiSecret string
-}
 
 type APIError struct {
 	StatusCode int    `json:"status_code"`
@@ -30,14 +34,32 @@ func (e *APIError) Error() string {
 	return fmt.Sprintf("status code: %d, message: %s", e.StatusCode, e.Message)
 }
 
+// Castle encapsulates http client
+type Castle struct {
+	client    *http.Client
+	apiSecret string
+
+	metricsEnabled bool
+}
+
 // New creates a new castle client with default http client
-func New(secret string) (*Castle, error) {
-	return NewWithHTTPClient(secret, http.DefaultClient)
+func New(secret string, opts ...Opt) (*Castle, error) {
+	return NewWithHTTPClient(secret, http.DefaultClient, opts...)
 }
 
 // NewWithHTTPClient same as New but allows passing of http.Client with custom config
-func NewWithHTTPClient(secret string, client *http.Client) (*Castle, error) {
-	return &Castle{client: client, apiSecret: secret}, nil
+func NewWithHTTPClient(secret string, client *http.Client, opts ...Opt) (*Castle, error) {
+	os := &options{
+		metricsEnabled: true,
+	}
+	for _, opt := range opts {
+		opt(os)
+	}
+	return &Castle{
+		client:         client,
+		apiSecret:      secret,
+		metricsEnabled: os.metricsEnabled,
+	}, nil
 }
 
 // Filter sends a filter request to castle.io
@@ -82,9 +104,21 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 	return c.sendCall(ctx, r, RiskEndpoint)
 }
 
-func (c *Castle) sendCall(ctx context.Context, r *castleAPIRequest, url string) (RecommendedAction, error) {
+func (c *Castle) sendCall(ctx context.Context, r *castleAPIRequest, url string) (_ RecommendedAction, err error) {
+	defer func() {
+		if !c.metricsEnabled {
+			return
+		}
+
+		status := "ok"
+		if err != nil {
+			status = "error"
+		}
+		castleReqsCounter.WithLabelValues(url, status).Inc()
+	}()
+
 	b := new(bytes.Buffer)
-	err := json.NewEncoder(b).Encode(r)
+	err = json.NewEncoder(b).Encode(r)
 	if err != nil {
 		return RecommendedActionNone, err
 	}
