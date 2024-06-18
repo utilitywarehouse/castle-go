@@ -55,7 +55,11 @@ func NewWithHTTPClient(secret string, client *http.Client, opts ...Opt) (*Castle
 	for _, opt := range opts {
 		opt(os)
 	}
-	return &Castle{client: client, apiSecret: secret}, nil
+	return &Castle{
+		client:         client,
+		apiSecret:      secret,
+		metricsEnabled: os.metricsEnabled,
+	}, nil
 }
 
 // Filter sends a filter request to castle.io
