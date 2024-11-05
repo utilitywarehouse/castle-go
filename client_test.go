@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -36,6 +37,7 @@ func configureRequest(httpReq *http.Request) *castle.Request {
 			Traits: map[string]string{"trait1": "traitValue1"},
 		},
 		Properties: map[string]string{"prop1": "propValue1"},
+		CreatedAt:  time.Now(),
 	}
 }
 
@@ -151,7 +153,7 @@ func TestCastle_Filter(t *testing.T) {
 				Type         castle.EventType   `json:"type"`
 				Status       castle.EventStatus `json:"status"`
 				RequestToken string             `json:"request_token"`
-				Params       castle.UserParams  `json:"params"`
+				Params       castle.Params      `json:"params"`
 				Context      *castle.Context    `json:"context"`
 				Properties   map[string]string  `json:"properties"`
 			}

@@ -52,6 +52,7 @@ type Request struct {
 	Event      Event
 	User       User
 	Properties map[string]string
+	CreatedAt  time.Time
 }
 
 // Context captures data from HTTP request.
@@ -70,7 +71,7 @@ type User struct {
 	Traits       map[string]string `json:"traits,omitempty"`
 }
 
-type UserParams struct {
+type Params struct {
 	Email    string `json:"email,omitempty"`
 	Phone    string `json:"phone,omitempty"`
 	Username string `json:"username,omitempty"`
@@ -85,7 +86,7 @@ type castleFilterAPIRequest struct {
 	Name         string            `json:"name,omitempty"`
 	Status       EventStatus       `json:"status"`
 	RequestToken string            `json:"request_token"`
-	Params       UserParams        `json:"params"`
+	Params       Params            `json:"params"`
 	Context      *Context          `json:"context"`
 	Properties   map[string]string `json:"properties,omitempty"`
 	CreatedAt    time.Time         `json:"created_at"`
