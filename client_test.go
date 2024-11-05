@@ -166,7 +166,6 @@ func TestCastle_Filter(t *testing.T) {
 			assert.True(t, ok)
 
 			err = json.NewDecoder(r.Body).Decode(reqData)
-			spew.Dump(reqData)
 			require.NoError(t, err)
 
 			assert.Equal(t, castle.EventTypeLogin, reqData.Type)
