@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -71,14 +72,19 @@ func (c *Castle) Filter(ctx context.Context, req *Request) (RecommendedAction, e
 	if req.Context == nil {
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
 	}
-	r := &castleAPIRequest{
+	user_params := UserParams{
+		Email:    req.User.Email,
+		Username: req.User.Name,
+	}
+	r := &castleFilterAPIRequest{
 		Type:         req.Event.EventType,
 		Name:         req.Event.Name,
 		Status:       req.Event.EventStatus,
 		RequestToken: req.Context.RequestToken,
-		User:         req.User,
+		Params:       user_params,
 		Context:      req.Context,
 		Properties:   req.Properties,
+		CreatedAt:    time.Now(),
 	}
 	return c.sendCall(ctx, r, FilterEndpoint)
 }
@@ -92,7 +98,7 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 	if req.Context == nil {
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
 	}
-	r := &castleAPIRequest{
+	r := &castleRiskAPIRequest{
 		Type:         req.Event.EventType,
 		Name:         req.Event.Name,
 		Status:       req.Event.EventStatus,
@@ -100,11 +106,12 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 		User:         req.User,
 		Context:      req.Context,
 		Properties:   req.Properties,
+		CreatedAt:    time.Now(),
 	}
 	return c.sendCall(ctx, r, RiskEndpoint)
 }
 
-func (c *Castle) sendCall(ctx context.Context, r *castleAPIRequest, url string) (_ RecommendedAction, err error) {
+func (c *Castle) sendCall(ctx context.Context, r castleAPIRequest, url string) (_ RecommendedAction, err error) {
 	defer func() {
 		if !c.metricsEnabled {
 			return
@@ -118,7 +125,13 @@ func (c *Castle) sendCall(ctx context.Context, r *castleAPIRequest, url string) 
 	}()
 
 	b := new(bytes.Buffer)
-	err = json.NewEncoder(b).Encode(r)
+
+	switch request := r.(type) {
+	case *castleRiskAPIRequest:
+		err = json.NewEncoder(b).Encode(request)
+	case *castleFilterAPIRequest:
+		err = json.NewEncoder(b).Encode(request)
+	}
 	if err != nil {
 		return RecommendedActionNone, err
 	}
