@@ -76,7 +76,7 @@ func (c *Castle) Filter(ctx context.Context, req *Request) (RecommendedAction, e
 		Email:    req.User.Email,
 		Username: req.User.Name,
 	}
-	r := &castleFilterAPIRequest{
+	r := &FilterRequest{
 		Type:         req.Event.EventType,
 		Name:         req.Event.Name,
 		Status:       req.Event.EventStatus,
@@ -86,7 +86,7 @@ func (c *Castle) Filter(ctx context.Context, req *Request) (RecommendedAction, e
 		Properties:   req.Properties,
 		CreatedAt:    time.Now(),
 	}
-	return c.sendCall(ctx, r, FilterEndpoint)
+	return sendCall(ctx, c, r, FilterEndpoint)
 }
 
 // Risk sends a risk request to castle.io
@@ -98,7 +98,7 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 	if req.Context == nil {
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
 	}
-	r := &castleRiskAPIRequest{
+	r := &RiskRequest{
 		Type:         req.Event.EventType,
 		Name:         req.Event.Name,
 		Status:       req.Event.EventStatus,
@@ -108,10 +108,10 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 		Properties:   req.Properties,
 		CreatedAt:    time.Now(),
 	}
-	return c.sendCall(ctx, r, RiskEndpoint)
+	return sendCall(ctx, c, r, RiskEndpoint)
 }
 
-func (c *Castle) sendCall(ctx context.Context, r castleAPIRequest, url string) (_ RecommendedAction, err error) {
+func sendCall[Req castleAPIRequest](ctx context.Context, c *Castle, r Req, url string) (_ RecommendedAction, err error) {
 	defer func() {
 		if !c.metricsEnabled {
 			return
@@ -126,12 +126,7 @@ func (c *Castle) sendCall(ctx context.Context, r castleAPIRequest, url string) (
 
 	b := new(bytes.Buffer)
 
-	switch request := r.(type) {
-	case *castleRiskAPIRequest:
-		err = json.NewEncoder(b).Encode(request)
-	case *castleFilterAPIRequest:
-		err = json.NewEncoder(b).Encode(request)
-	}
+	err = json.NewEncoder(b).Encode(r)
 	if err != nil {
 		return RecommendedActionNone, err
 	}
