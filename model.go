@@ -77,10 +77,10 @@ type UserParams struct {
 }
 
 type castleAPIRequest interface {
-	GetEventType() EventType
+	*FilterRequest | *RiskRequest
 }
 
-type castleFilterAPIRequest struct {
+type FilterRequest struct {
 	Type         EventType         `json:"type"`
 	Name         string            `json:"name,omitempty"`
 	Status       EventStatus       `json:"status"`
@@ -91,11 +91,7 @@ type castleFilterAPIRequest struct {
 	CreatedAt    time.Time         `json:"created_at"`
 }
 
-func (r *castleFilterAPIRequest) GetEventType() EventType {
-	return r.Type
-}
-
-type castleRiskAPIRequest struct {
+type RiskRequest struct {
 	Type         EventType         `json:"type"`
 	Name         string            `json:"name,omitempty"`
 	Status       EventStatus       `json:"status"`
@@ -104,10 +100,6 @@ type castleRiskAPIRequest struct {
 	Context      *Context          `json:"context"`
 	Properties   map[string]string `json:"properties,omitempty"`
 	CreatedAt    time.Time         `json:"created_at"`
-}
-
-func (r *castleRiskAPIRequest) GetEventType() EventType {
-	return r.Type
 }
 
 type castleAPIResponse struct {
