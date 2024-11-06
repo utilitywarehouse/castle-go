@@ -103,7 +103,7 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
 	}
 	createdAt := req.CreatedAt
-	if req.CreatedAt.IsZero() {
+	if createdAt.IsZero() {
 		createdAt = time.Now()
 	}
 	r := &castleRiskAPIRequest{
