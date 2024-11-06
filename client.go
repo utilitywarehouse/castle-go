@@ -74,7 +74,7 @@ func (c *Castle) Filter(ctx context.Context, req *Request) (RecommendedAction, e
 	}
 	params := Params{
 		Email:    req.User.Email,
-		Username: req.User.Name,
+		Username: req.User.ID,
 	}
 	createdAt := req.CreatedAt
 	if createdAt.IsZero() {
