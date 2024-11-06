@@ -77,7 +77,7 @@ func (c *Castle) Filter(ctx context.Context, req *Request) (RecommendedAction, e
 		Username: req.User.Name,
 	}
 	createdAt := req.CreatedAt
-	if req.CreatedAt.IsZero() {
+	if createdAt.IsZero() {
 		createdAt = time.Now()
 	}
 	r := &castleFilterAPIRequest{
