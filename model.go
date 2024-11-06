@@ -1,5 +1,7 @@
 package castle
 
+import "time"
+
 type Event struct {
 	EventType   EventType
 	EventStatus EventStatus
@@ -50,6 +52,7 @@ type Request struct {
 	Event      Event
 	User       User
 	Properties map[string]string
+	CreatedAt  time.Time
 }
 
 // Context captures data from HTTP request.
@@ -68,7 +71,32 @@ type User struct {
 	Traits       map[string]string `json:"traits,omitempty"`
 }
 
-type castleAPIRequest struct {
+type Params struct {
+	Email    string `json:"email,omitempty"`
+	Phone    string `json:"phone,omitempty"`
+	Username string `json:"username,omitempty"`
+}
+
+type castleAPIRequest interface {
+	GetEventType() EventType
+}
+
+type castleFilterAPIRequest struct {
+	Type         EventType         `json:"type"`
+	Name         string            `json:"name,omitempty"`
+	Status       EventStatus       `json:"status"`
+	RequestToken string            `json:"request_token"`
+	Params       Params            `json:"params"`
+	Context      *Context          `json:"context"`
+	Properties   map[string]string `json:"properties,omitempty"`
+	CreatedAt    time.Time         `json:"created_at"`
+}
+
+func (r *castleFilterAPIRequest) GetEventType() EventType {
+	return r.Type
+}
+
+type castleRiskAPIRequest struct {
 	Type         EventType         `json:"type"`
 	Name         string            `json:"name,omitempty"`
 	Status       EventStatus       `json:"status"`
@@ -76,6 +104,11 @@ type castleAPIRequest struct {
 	User         User              `json:"user"`
 	Context      *Context          `json:"context"`
 	Properties   map[string]string `json:"properties,omitempty"`
+	CreatedAt    time.Time         `json:"created_at"`
+}
+
+func (r *castleRiskAPIRequest) GetEventType() EventType {
+	return r.Type
 }
 
 type castleAPIResponse struct {

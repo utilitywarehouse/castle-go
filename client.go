@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -71,14 +72,23 @@ func (c *Castle) Filter(ctx context.Context, req *Request) (RecommendedAction, e
 	if req.Context == nil {
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
 	}
-	r := &castleAPIRequest{
+	params := Params{
+		Email:    req.User.Email,
+		Username: req.User.ID,
+	}
+	createdAt := req.CreatedAt
+	if createdAt.IsZero() {
+		createdAt = time.Now()
+	}
+	r := &castleFilterAPIRequest{
 		Type:         req.Event.EventType,
 		Name:         req.Event.Name,
 		Status:       req.Event.EventStatus,
 		RequestToken: req.Context.RequestToken,
-		User:         req.User,
+		Params:       params,
 		Context:      req.Context,
 		Properties:   req.Properties,
+		CreatedAt:    createdAt,
 	}
 	return c.sendCall(ctx, r, FilterEndpoint)
 }
@@ -92,7 +102,11 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 	if req.Context == nil {
 		return RecommendedActionNone, errors.New("request.Context cannot be nil")
 	}
-	r := &castleAPIRequest{
+	createdAt := req.CreatedAt
+	if createdAt.IsZero() {
+		createdAt = time.Now()
+	}
+	r := &castleRiskAPIRequest{
 		Type:         req.Event.EventType,
 		Name:         req.Event.Name,
 		Status:       req.Event.EventStatus,
@@ -100,11 +114,12 @@ func (c *Castle) Risk(ctx context.Context, req *Request) (RecommendedAction, err
 		User:         req.User,
 		Context:      req.Context,
 		Properties:   req.Properties,
+		CreatedAt:    createdAt,
 	}
 	return c.sendCall(ctx, r, RiskEndpoint)
 }
 
-func (c *Castle) sendCall(ctx context.Context, r *castleAPIRequest, url string) (_ RecommendedAction, err error) {
+func (c *Castle) sendCall(ctx context.Context, r castleAPIRequest, url string) (_ RecommendedAction, err error) {
 	defer func() {
 		if !c.metricsEnabled {
 			return
@@ -118,7 +133,13 @@ func (c *Castle) sendCall(ctx context.Context, r *castleAPIRequest, url string) 
 	}()
 
 	b := new(bytes.Buffer)
-	err = json.NewEncoder(b).Encode(r)
+
+	switch request := r.(type) {
+	case *castleFilterAPIRequest, *castleRiskAPIRequest:
+		err = json.NewEncoder(b).Encode(request)
+	default:
+		err = fmt.Errorf("incorrect request type passed as argument.")
+	}
 	if err != nil {
 		return RecommendedActionNone, err
 	}

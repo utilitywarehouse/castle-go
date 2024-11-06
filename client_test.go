@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -32,9 +33,11 @@ func configureRequest(httpReq *http.Request) *castle.Request {
 		},
 		User: castle.User{
 			ID:     "user-id",
+			Email:  "user@test.com",
 			Traits: map[string]string{"trait1": "traitValue1"},
 		},
 		Properties: map[string]string{"prop1": "propValue1"},
+		CreatedAt:  time.Now(),
 	}
 }
 
@@ -150,7 +153,7 @@ func TestCastle_Filter(t *testing.T) {
 				Type         castle.EventType   `json:"type"`
 				Status       castle.EventStatus `json:"status"`
 				RequestToken string             `json:"request_token"`
-				User         castle.User        `json:"user"`
+				Params       castle.Params      `json:"params"`
 				Context      *castle.Context    `json:"context"`
 				Properties   map[string]string  `json:"properties"`
 			}
@@ -168,9 +171,8 @@ func TestCastle_Filter(t *testing.T) {
 
 			assert.Equal(t, castle.EventTypeLogin, reqData.Type)
 			assert.Equal(t, castle.EventStatusSucceeded, reqData.Status)
-			assert.Equal(t, "user-id", reqData.User.ID)
+			assert.Equal(t, "user@test.com", reqData.Params.Email)
 			assert.Equal(t, map[string]string{"prop1": "propValue1"}, reqData.Properties)
-			assert.Equal(t, map[string]string{"trait1": "traitValue1"}, reqData.User.Traits)
 			assert.Equal(t, castle.FromHTTPRequest(httpReq), reqData.Context)
 
 			executed = true
