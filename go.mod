@@ -1,6 +1,6 @@
 module github.com/utilitywarehouse/castle-go
 
-go 1.20
+go 1.24
 
 require (
 	github.com/daixiang0/gci v0.10.1
