@@ -10,13 +10,6 @@ install:
 		gotest.tools/gotestsum \
 		mvdan.cc/gofumpt
 
-format:
-	$(FORMAT_FILES) | xargs gofumpt -extra -w
-	$(FORMAT_FILES) | xargs gci write \
-		--section standard \
-		--section default \
-		--section 'Prefix(github.com/utilitywarehouse/castle-go)'
-
 lint:
 	golangci-lint run --fix
 

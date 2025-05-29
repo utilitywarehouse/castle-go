@@ -49,8 +49,15 @@ linters:
 formatters:
   enable:
     - gci
+    - gofmt
     - gofumpt
     - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/utilitywarehouse/castle-go)
   exclusions:
     generated: lax
     paths:
