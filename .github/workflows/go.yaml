@@ -3,7 +3,7 @@ on:
   push:
 env:
   GOPRIVATE: "github.com/utilitywarehouse/*"
-  GOLANGCI_LINT_VERSION: "v1.52.2"
+  GOLANGCI_LINT_VERSION: "v2.1.6"
 jobs:
   format:
     runs-on: ubuntu-latest
