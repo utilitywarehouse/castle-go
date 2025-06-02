@@ -138,7 +138,7 @@ func (c *Castle) sendCall(ctx context.Context, r castleAPIRequest, url string) (
 	case *castleFilterAPIRequest, *castleRiskAPIRequest:
 		err = json.NewEncoder(b).Encode(request)
 	default:
-		err = fmt.Errorf("incorrect request type passed as argument.")
+		err = fmt.Errorf("incorrect request type passed as argument")
 	}
 	if err != nil {
 		return RecommendedActionNone, err

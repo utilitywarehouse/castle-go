@@ -49,7 +49,7 @@ func TestCastle_SendFilterCall(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("response error", func(t *testing.T) {
-		fs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			_, err := w.Write([]byte(`{"error": "this is an error"}`))
 			require.NoError(t, err)
@@ -63,7 +63,7 @@ func TestCastle_SendFilterCall(t *testing.T) {
 	})
 
 	t.Run("bad client request response", func(t *testing.T) {
-		fs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(400)
 			w.Write([]byte(`foo`)) // nolint: errcheck
@@ -79,7 +79,7 @@ func TestCastle_SendFilterCall(t *testing.T) {
 	})
 
 	t.Run("allow action response", func(t *testing.T) {
-		fs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(201)
 			_, err := w.Write([]byte(`{"policy": {"action": "allow"}}`))
@@ -290,7 +290,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("response error", func(t *testing.T) {
-		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			_, err := w.Write([]byte(`{"error": "this is an error"}`))
 			require.NoError(t, err)
@@ -305,7 +305,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	})
 
 	t.Run("bad client request response", func(t *testing.T) {
-		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(400)
 			w.Write([]byte(`foo`)) // nolint: errcheck
@@ -322,7 +322,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	})
 
 	t.Run("invalid parameter response", func(t *testing.T) {
-		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			_, err := w.Write([]byte(`{"type": "invalid_parameter", "message": "error message"}`))
 			require.NoError(t, err)
@@ -337,7 +337,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	})
 
 	t.Run("allow action response", func(t *testing.T) {
-		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(http.StatusCreated)
 			_, err := w.Write([]byte(`{"policy": { "action": "allow"}}`))
@@ -353,7 +353,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	})
 
 	t.Run("challenge action response", func(t *testing.T) {
-		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(http.StatusCreated)
 			_, err := w.Write([]byte(`{"policy": { "action": "challenge"}}`))
@@ -369,7 +369,7 @@ func TestCastle_SendRiskCall(t *testing.T) {
 	})
 
 	t.Run("deny action response", func(t *testing.T) {
-		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Header().Set("content-type", "application/json")
 			w.WriteHeader(http.StatusCreated)
 			_, err := w.Write([]byte(`{"policy": { "action": "deny"}}`))

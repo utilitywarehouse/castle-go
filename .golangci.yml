@@ -1,96 +1,66 @@
-# options for analysis running
+version: "2"
 run:
-  timeout: 10m
   tests: true
-  silent: true
-
-# output configuration options
-output:
-  format: colored-line-number
-  print-issued-lines: true
-  print-linter-name: true
-
-# all available settings of specific linters
-linters-settings:
-  errcheck:
-    check-type-assertions: true
-    check-blank: true
-  errorlint:
-    asserts: false
-    comparison: false
-  gci:
-    sections:
-      - standard
-      - default
-      - prefix(github.com/utilitywarehouse/castle-go)
-  gofumpt:
-    extra-rules: true
-  govet:
-    check-shadowing: false
-    disable:
-      - shadow
-  misspell:
-    locale: UK
-  nakedret:
-    max-func-lines: 30
-  prealloc:
-    simple: true
-    range-loops: true
-    for-loops: true
-  revive:
-    rules:
-      - name: package-comments
-        disabled: true
-  unparam:
-    algo: cha
-  unused:
-    check-exported: false
-
 linters:
   enable:
-    - asciicheck # Simple linter to check that your code does not contain non-ASCII identifiers [fast: true]
-    - bidichk # Simple linter to check that your code does not contain Unicode bidirectional control characters [fast: true]
-    - durationcheck # Check that duration constants are multiplied by time.Second [fast: true]
-    - errname # Checks that sentinel errors are prefixed with the `Err` or `Err...` [fast: true]
-    - errorlint # errorlint is a linter for that can be used to find code that will cause problems with the error wrapping scheme introduced in Go 1.13. [fast: true]
-    - exhaustive # check exhaustiveness of enum switch statements [fast: true]
-    - exportloopref # checks for pointers to enclosing loop variables [fast: true]
-    - gci # Gci control golang package import order and make it always deterministic. [fast: true]
-    - gofumpt # Gofumpt checks whether code was gofumpt-ed. [fast: true]
-    - goimports # Goimports does everything that gofmt does. Additionally it checks unused imports [fast: true]
-    - gomoddirectives # Checks that go.mod file has the expected directives [fast: true]
-    - gosec # Inspects source code for security problems [fast: false]
-    - importas # Checks that import aliases are not redundant [fast: true]
-    - makezero # Finds slice declarations without explicit initial length [fast: true]
-    - misspell # Finds commonly misspelled English words in comments [fast: true]
-    - nakedret # Finds naked returns in functions greater than a specified function length [fast: true]
-    - nestif # Reports deeply nested if statements [fast: true]
-    - nilerr # Reports an error if a function returns a nil error. [fast: true]
-    - noctx # noctx finds sending http request without context.Context [fast: true]
-    - prealloc # Finds slice declarations that could potentially be preallocated [fast: true]
-    - predeclared # Finds code that shadows one of Go's predeclared identifiers [fast: true]
-    - promlinter # Linter for Prometheus client_golang metrics naming [fast: true]
-    - revive # Revive replaces golint
-    - rowserrcheck # Checks whether Err of rows is checked successfully [fast: true]
-    - sqlclosecheck # Checks that sql.Rows and sql.Stmt are closed. [fast: true]
-    - tenv # tenv is a linter that checks for hardcoded test environment variables. [fast: true]
-    - thelper # thelper is a linter that helps you to implement the Thelper pattern. [fast: true]
-    - tparallel # tparallel detects inappropriate usage of t.Parallel() method [fast: true]
-    - unconvert # Remove unnecessary type conversions [fast: false]
-    - unparam # Reports unused function parameters [fast: false]
-    - wastedassign # wastedassign finds wasted assignment statements. [fast: true]
-
+    - asciicheck
+    - bidichk
+    - durationcheck
+    - errname
+    - errorlint
+    - exhaustive
+    - gomoddirectives
+    - gosec
+    - importas
+    - makezero
+    - misspell
+    - nakedret
+    - nestif
+    - nilerr
+    - noctx
+    - prealloc
+    - predeclared
+    - promlinter
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - wastedassign
   disable:
-    - deadcode # Finds unused code [fast: false]
-    - depguard # Go linter that checks if package imports are in a list of acceptable packages [fast: false]
-    - dupl # Tool for code clone detection [fast: true]
-    - goconst # Finds repeated strings that could be replaced by a constant [fast: true]
-    - gocyclo # Computes and checks the cyclomatic complexity of functions [fast: true]
-    - gofmt # Gofmt checks whether code was gofmt-ed. By default this tool runs with -s option to check for code simplification [fast: true]
-    - golint # Golint differs from gofmt. Gofmt reformats Go source code, whereas golint prints out style mistakes [fast: true]
-    - gosimple # Linter for Go source code that specializes in simplifying a code [fast: false]
-    - interfacer # Linter that suggests narrower interface types [fast: false]
-    - lll # Reports long lines [fast: true]
-    - maligned # Tool to detect Go structs that would take less memory if their fields were sorted [fast: false]
-    - typecheck # Like the front-end of a Go compiler, parses and type-checks Go code [fast: false]
-    - varcheck # Finds unused global variables and constants [fast: false]
+    - depguard
+    - dupl
+    - goconst
+    - gocyclo
+    - lll
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/utilitywarehouse/castle-go)
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

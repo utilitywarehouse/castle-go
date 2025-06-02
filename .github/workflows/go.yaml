@@ -3,24 +3,8 @@ on:
   push:
 env:
   GOPRIVATE: "github.com/utilitywarehouse/*"
-  GOLANGCI_LINT_VERSION: "v1.52.2"
+  GOLANGCI_LINT_VERSION: "v2.1.6"
 jobs:
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version-file: 'go.mod'
-          cache: true
-      - name: Install binaries
-        run: make install
-      - name: Format
-        run: make format
-      - name: Check for changes
-        run: git add . && git diff --staged --exit-code
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -34,9 +18,11 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
       - name: Lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v8
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
+      - name: Check for changes
+        run: git add . && git diff --staged --exit-code
   mod:
     runs-on: ubuntu-latest
     steps:
