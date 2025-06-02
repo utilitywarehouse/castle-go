@@ -8,7 +8,7 @@ import (
 
 func Test_Middleware(t *testing.T) {
 	t.Run("ctx is set", func(t *testing.T) {
-		middleware := Middleware(false)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		middleware := Middleware()(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			castleCtx := FromCtx(r.Context())
 			if castleCtx == nil {
 				t.Error("Expected castle context to be present in request context")
@@ -31,7 +31,7 @@ func Test_Middleware(t *testing.T) {
 		}
 	})
 	t.Run("ctx is not set", func(t *testing.T) {
-		middleware := Middleware(true)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		middleware := Middleware()(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			castleCtx := FromCtx(r.Context())
 			if castleCtx != nil {
 				t.Error("Expected castle context to not be present in request context")
