@@ -1,6 +1,9 @@
 package castle
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 type Event struct {
 	EventType   EventType
@@ -79,6 +82,7 @@ type Params struct {
 
 type castleAPIRequest interface {
 	GetEventType() EventType
+	GetUserAgent() string
 }
 
 type castleFilterAPIRequest struct {
@@ -96,6 +100,10 @@ func (r *castleFilterAPIRequest) GetEventType() EventType {
 	return r.Type
 }
 
+func (r *castleFilterAPIRequest) GetUserAgent() string {
+	return userAgentFromContext(r.Context)
+}
+
 type castleRiskAPIRequest struct {
 	Type         EventType         `json:"type"`
 	Name         string            `json:"name,omitempty"`
@@ -111,6 +119,10 @@ func (r *castleRiskAPIRequest) GetEventType() EventType {
 	return r.Type
 }
 
+func (r *castleRiskAPIRequest) GetUserAgent() string {
+	return userAgentFromContext(r.Context)
+}
+
 type castleAPIResponse struct {
 	Type    string  `json:"type"`
 	Message string  `json:"message"`
@@ -124,4 +136,13 @@ type castleAPIResponse struct {
 	Device struct {
 		Token string `json:"token"`
 	} `json:"device"`
+}
+
+func userAgentFromContext(context *Context) string {
+	for k, v := range context.Headers {
+		if strings.ToLower(k) == "user-agent" {
+			return v
+		}
+	}
+	return ""
 }
