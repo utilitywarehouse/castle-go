@@ -17,7 +17,12 @@ func Test_Middleware(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 
-		req, err := http.NewRequestWithContext(t.Context(), "GET", "https://example.com", nil)
+		ctx := ToCtx(t.Context(), &Context{
+			IP:           "foobar",
+			Headers:      map[string]string{},
+			RequestToken: "baz",
+		})
+		req, err := http.NewRequestWithContext(ctx, "GET", "https://example.com", nil)
 		if err != nil {
 			t.Fatal(err)
 		}
