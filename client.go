@@ -151,6 +151,7 @@ func (c *Castle) sendCall(ctx context.Context, r castleAPIRequest, url string) (
 
 	req.SetBasicAuth("", c.apiSecret)
 	req.Header.Set("content-type", "application/json")
+	req.Header.Set("user-agent", r.GetUserAgent())
 
 	res, err := c.client.Do(req)
 	if err != nil {
