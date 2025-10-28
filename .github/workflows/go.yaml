@@ -4,21 +4,32 @@ on:
 env:
   GOPRIVATE: "github.com/utilitywarehouse/*"
   GOLANGCI_LINT_VERSION: "v2.1.6"
+permissions:
+  contents: read
+
 jobs:
   lint:
+    permissions:
+      contents: read  # for actions/checkout to fetch code
+      pull-requests: read  # for golangci/golangci-lint-action to fetch pull requests
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Configure git for private modules
         run: git config --global url."https://${{ secrets.DEPLOY_GITHUB_USER }}:${{ secrets.DEPLOY_GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@19bb51245e9c80abacb2e91cc42b33fa478b8639 # v4.2.1
         with:
           go-version-file: 'go.mod'
           cache: true
       - name: Lint
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@4afd733a84b1f43292c63897423277bb7f4313a9 # v8.0.0
         with:
           version: ${{ env.GOLANGCI_LINT_VERSION }}
       - name: Check for changes
@@ -26,12 +37,17 @@ jobs:
   mod:
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Configure git for private modules
         run: git config --global url."https://${{ secrets.DEPLOY_GITHUB_USER }}:${{ secrets.DEPLOY_GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@19bb51245e9c80abacb2e91cc42b33fa478b8639 # v4.2.1
         with:
           go-version-file: 'go.mod'
           cache: true
@@ -42,12 +58,17 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@f4a75cfd619ee5ce8d5b864b0d183aff3c69b55a # v2.13.1
+        with:
+          egress-policy: audit
+
       - name: Configure git for private modules
         run: git config --global url."https://${{ secrets.DEPLOY_GITHUB_USER }}:${{ secrets.DEPLOY_GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@19bb51245e9c80abacb2e91cc42b33fa478b8639 # v4.2.1
         with:
           go-version-file: 'go.mod'
           cache: true
